@@ -1,8 +1,5 @@
 package com.ianprime0509.temperatune
 
-import android.media.AudioFormat
-import android.media.AudioManager
-import android.media.AudioTrack
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -10,17 +7,17 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
+import com.ianprime0509.temperatune.audio.SineWavePlayer
 import com.ianprime0509.temperatune.json.moshi
 import com.ianprime0509.temperatune.model.Temperament
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
-import kotlin.math.roundToInt
-import kotlin.math.sin
 
 class MainActivity : AppCompatActivity() {
     private val temperament = moshi.adapter(Temperament::class.java)
         .fromJson(Temperament::class.java.getResource("equalTemperament.json")!!.readText())!!
-    private var noteTrack: AudioTrack = createSineWave(temperament.referencePitch)
+    private val octaves = listOf(3, 4, 5)
+    private val player = SineWavePlayer(temperament.referencePitch)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,20 +31,38 @@ class MainActivity : AppCompatActivity() {
         note_spinner.setSelection(temperament.noteNames.indexOf(temperament.referenceName))
 
         note_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) =
+            override fun onNothingSelected(parent: AdapterView<*>?) {
                 note_spinner.setSelection(temperament.noteNames.indexOf(temperament.referenceName))
-
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, selection: Int, id: Long) {
-                noteTrack.stop()
-                noteTrack = createSineWave(temperament.getPitch(temperament.noteNames[selection], 4))
             }
 
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, selection: Int, id: Long) {
+                player.pitch = getSelectedPitch(selection, octave_spinner.selectedItemPosition)
+                pitch_label.text = "${player.pitch} Hz"
+            }
+        }
+
+        ArrayAdapter(this, android.R.layout.simple_spinner_item, octaves).let {
+            it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            octave_spinner.adapter = it
+        }
+        octave_spinner.setSelection(1)
+
+        octave_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                note_spinner.setSelection(1)
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, selection: Int, id: Long) {
+                player.pitch = getSelectedPitch(note_spinner.selectedItemPosition, selection)
+                pitch_label.text = "${player.pitch} Hz"
+            }
         }
 
         play_button.setOnClickListener {
-            when (noteTrack.playState) {
-                AudioTrack.PLAYSTATE_PLAYING -> noteTrack.pause()
-                else -> noteTrack.play()
+            player.togglePlay()
+            play_button.text = when (player.isPlaying) {
+                true -> "Pause"
+                false -> "Play"
             }
         }
     }
@@ -68,29 +83,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun createSineWave(pitch: Double): AudioTrack {
-        val sampleRate = 41000
-        val numFrames = (sampleRate / pitch).roundToInt()
-
-        @Suppress("DEPRECATION") val track = AudioTrack(
-            AudioManager.STREAM_MUSIC,
-            sampleRate,
-            AudioFormat.CHANNEL_OUT_MONO,
-            AudioFormat.ENCODING_PCM_16BIT,
-            numFrames * 2,
-            AudioTrack.MODE_STATIC
-        )
-        track.setLoopPoints(0, numFrames, -1)
-
-        val data = ShortArray(numFrames)
-        val delta = 2 * Math.PI * pitch / sampleRate
-        var angle = 0.0
-        for (i in data.indices) {
-            data[i] = (sin(angle) * Short.MAX_VALUE).toShort()
-            angle += delta
-        }
-        track.write(data, 0, data.size)
-
-        return track
+    private fun getSelectedPitch(noteIndex: Int, octaveIndex: Int): Double {
+        return temperament.getPitch(temperament.noteNames[noteIndex], octaves[octaveIndex])
     }
 }

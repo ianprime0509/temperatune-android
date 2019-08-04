@@ -22,21 +22,90 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/note_spinner" />
+        app:layout_constraintTop_toTopOf="@+id/octave_barrier"
+        app:layout_constraintVertical_bias="1.0" />
 
     <Spinner
         android:id="@+id/note_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:spinnerMode="dialog"
+        app:layout_constraintBottom_toBottomOf="@+id/note_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/label_barrier"
+        app:layout_constraintTop_toTopOf="@+id/note_label" />
+
+    <TextView
+        android:id="@+id/note_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/play_button"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:text="Note"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/note_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="note_label,note_spinner"
+        tools:layout_editor_absoluteY="675dp" />
+
+    <TextView
+        android:id="@+id/octave_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Octave"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/note_barrier" />
+
+    <Spinner
+        android:id="@+id/octave_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/octave_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/label_barrier"
+        app:layout_constraintTop_toTopOf="@+id/octave_label" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/octave_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="octave_label,octave_spinner"
+        tools:layout_editor_absoluteY="675dp" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/label_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="right"
+        app:constraint_referenced_ids="note_label,octave_label"
+        tools:layout_editor_absoluteX="411dp" />
+
+    <TextView
+        android:id="@+id/pitch_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Pitch"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/octave_barrier" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
